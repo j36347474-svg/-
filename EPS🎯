@@ -1,0 +1,197 @@
+-- โหลด Rayfield Library
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+-- สร้าง Window หลัก
+local Window = Rayfield:CreateWindow({
+   Name = "สคริปต์บังเจษ🔥",
+   LoadingTitle = "กำลังโหลดสคริปต์บังเจษ...",
+   LoadingSubtitle = "by บังเจษ",
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = "BangJedScript",
+      FileName = "Config"
+   },
+   Discord = {
+      Enabled = false
+   },
+   KeySystem = false
+})
+
+-- ตัวแปรระบบ (Variables)
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
+local SpeedValue = 16
+local Noclip = false
+local InfiniteJump = false
+local AntiAFK = false
+
+-- ==========================================
+-- หน้า 1: เมนูคน 👤
+-- ==========================================
+local PlayerTab = Window:CreateTab("เมนูคน 👤", 4483362458)
+
+PlayerTab:CreateSlider({
+   Name = "ปรับการวิ่งไว (WalkSpeed)",
+   Range = {16, 500},
+   Increment = 1,
+   Suffix = "Speed",
+   CurrentValue = 16,
+   Flag = "SpeedSlider",
+   Callback = function(Value)
+      SpeedValue = Value
+      if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+         LocalPlayer.Character.Humanoid.WalkSpeed = SpeedValue
+      end
+   end,
+})
+
+-- Loop ล็อก WalkSpeed ไม่ให้โดนเกมรีเซ็ต
+RunService.RenderStepped:Connect(function()
+   if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+      if LocalPlayer.Character.Humanoid.WalkSpeed ~= SpeedValue then
+         LocalPlayer.Character.Humanoid.WalkSpeed = SpeedValue
+      end
+   end
+end)
+
+PlayerTab:CreateToggle({
+   Name = "เปิดโหมดกันหลุดออกเซิฟ👑 (Anti-AFK)",
+   CurrentValue = false,
+   Flag = "AntiAFKToggle",
+   Callback = function(Value)
+      AntiAFK = Value
+      if AntiAFK then
+         local VirtualUser = game:GetService("VirtualUser")
+         LocalPlayer.Idled:Connect(function()
+            if AntiAFK then
+               VirtualUser:CaptureController()
+               VirtualUser:ClickButton2(Vector2.new())
+            end
+         end)
+      end
+   end,
+})
+
+PlayerTab:CreateToggle({
+   Name = "กดโดดลอย🤯 (Infinite Jump)",
+   CurrentValue = false,
+   Flag = "InfJumpToggle",
+   Callback = function(Value)
+      InfiniteJump = Value
+   end,
+})
+
+-- ระบบโดดลอย
+UserInputService.JumpRequest:Connect(function()
+   if InfiniteJump and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+      LocalPlayer.Character.Humanoid:ChangeState("Jumping")
+   end
+end)
+
+PlayerTab:CreateToggle({
+   Name = "เปิดเดินทะลุสิ่งของ (Noclip)",
+   CurrentValue = false,
+   Flag = "NoclipToggle",
+   Callback = function(Value)
+      Noclip = Value
+   end,
+})
+
+-- ระบบเดินทะลุสิ่งของ
+RunService.Stepped:Connect(function()
+   if Noclip and LocalPlayer.Character then
+      for _, part in pairs(LocalPlayer.Character:GetDescendants()) do
+         if part:IsA("BasePart") then
+            part.CanCollide = false
+         end
+      end
+   end
+end)
+
+-- ==========================================
+-- หน้า 2: เมนู FOV 🎯
+-- ==========================================
+local FOVTab = Window:CreateTab("เมนู FOV 🎯", 4483362458)
+
+FOVTab:CreateSlider({
+   Name = "ปรับขนาด FOV กล้อง (Camera FOV)",
+   Range = {70, 120},
+   Increment = 1,
+   Suffix = "Deg",
+   CurrentValue = 70,
+   Flag = "CameraFOV",
+   Callback = function(Value)
+      workspace.CurrentCamera.FieldOfView = Value
+   end,
+})
+
+FOVTab:CreateToggle({
+   Name = "ปรับการล็อกคน (Aimbot FOV Status)",
+   CurrentValue = false,
+   Flag = "AimbotToggle",
+   Callback = function(Value)
+      -- ใส่โค้ดระบบล็อกคน/Aimbot ของคุณเพิ่มเติมตรงนี้
+      Rayfield:Notify({
+         Title = "ระบบล็อกคน",
+         Content = Value and "เปิดใช้งานการล็อกเป้า" or "ปิดใช้งานการล็อกเป้า",
+         Duration = 2,
+      })
+   end,
+})
+
+FOVTab:CreateColorPicker({
+    Name = "ปรับสี FOV Circle",
+    Color = Color3.fromRGB(255, 0, 0),
+    Flag = "FOVColor",
+    Callback = function(Value)
+        -- ใส่โค้ดอัปเดตสีของวงกลม FOV ตรงนี้
+    end
+})
+
+-- ==========================================
+-- หน้า 3: เมนู ESP 👾
+-- ==========================================
+local ESPTab = Window:CreateTab("เมนู ESP 👾", 4483362458)
+
+local ESP_Enabled = false
+local ESP_Distance = false
+local ESP_Name = false
+
+ESPTab:CreateToggle({
+   Name = "เปิด ESP (กล่องมองทะลุ)",
+   CurrentValue = false,
+   Flag = "ESPToggle",
+   Callback = function(Value)
+      ESP_Enabled = Value
+      -- สามารถเชื่อมต่อกับสคริปต์ ESP/Highlight หลักได้ตรงนี้
+   end,
+})
+
+ESPTab:CreateToggle({
+   Name = "เปิด ESP บอกระยะตำแหน่ง (Distance)",
+   CurrentValue = false,
+   Flag = "ESPDistanceToggle",
+   Callback = function(Value)
+      ESP_Distance = Value
+   end,
+})
+
+ESPTab:CreateToggle({
+   Name = "เปิด ESP ดูชื่อผู้คน (Player Names)",
+   CurrentValue = false,
+   Flag = "ESPNameToggle",
+   Callback = function(Value)
+      ESP_Name = Value
+   end,
+})
+
+-- แจ้งเตือนเมื่อโหลดเสร็จ
+Rayfield:Notify({
+   Title = "สคริปต์บังเจษ🔥",
+   Content = "โหลดสคริปต์สำเร็จแล้ว พร้อมใช้งาน!",
+   Duration = 5,
+   Image = 4483362458,
+})
